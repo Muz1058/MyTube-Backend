@@ -106,8 +106,8 @@ A comprehensive video sharing platform backend built with Node.js, Express, and 
 3. **Set up environment variables**
    Create a `.env` file in the root directory:
    ```env
-   PORT=8000
-   MONGODB_URI=mongodb://localhost:27017
+   PORT=
+   MONGODB_URI=
    CORS_ORIGIN=*
    
    ACCESS_TOKEN_SECRET=your_access_token_secret
