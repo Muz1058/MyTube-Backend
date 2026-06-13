@@ -21,7 +21,7 @@ app.use(cookieParser())
 
 
 //routes import
-//import userRouter from './routes/user.routes.js'
+import userRouter from './routes/user.routes.js'
 import healthcheckRouter from "./routes/healthcheck.routes.js"
 import tweetRouter from "./routes/tweet.routes.js"
 import subscriptionRouter from "./routes/subscription.routes.js"
@@ -43,5 +43,22 @@ app.use("/api/v1/playlist", playlistRouter)
 app.use("/api/v1/dashboard", dashboardRouter)
 
 // http://localhost:8000/api/v1/users/register
+
+// FIX 4: Global error handler middleware
+// Must be defined AFTER all routes
+// Catches any error thrown via next(err) or throw inside asyncHandler
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+ 
+  return res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+    errors: err.errors || [],
+    // Only expose stack trace in development
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
+});
 
 export { app }

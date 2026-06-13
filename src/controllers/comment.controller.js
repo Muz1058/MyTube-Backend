@@ -12,6 +12,8 @@ const getVideoComments = asyncHandler(async (req, res) => {
     if (!videoId) {
         throw new ApiError(400, "Video ID is required")
     }
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
 
     const comments = await Comment.aggregate([
         {
@@ -32,8 +34,8 @@ const getVideoComments = asyncHandler(async (req, res) => {
         },
         { $unwind: "$owner" },
         { $sort: { createdAt: -1 } },
-        { $skip: (page - 1) * limit },
-        { $limit: parseInt(limit) }
+        { $skip: (pageNum - 1) * limitNum },
+        { $limit: limitNum }
     ])
 
     return res
@@ -87,6 +89,14 @@ const updateComment = asyncHandler(async (req, res) => {
         throw new ApiError(401,"Somthing went wrong while fetching comment")
     }
 
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+         throw new ApiError(404, "Comment not found");
+    }
+    if (comment.owner.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "You are not authorized to update this comment");
+    }
+
     const myContent=req.body.content
 
     if(!myContent||myContent.trim()===""){
@@ -121,6 +131,13 @@ const deleteComment = asyncHandler(async (req, res) => {
         throw new ApiError(401,"Somthing went wrong while fetching comment")
     }
 
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+        throw new ApiError(404, "Comment not found");
+    }   
+    if (comment.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to delete this comment");
+    }
     const deleteComment=await Comment.findByIdAndDelete(commentId)
      if(!deleteComment){
         throw new ApiError(500,"Something went wrong while deleting content")

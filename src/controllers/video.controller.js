@@ -28,6 +28,9 @@ const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
 
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
     const matchStage = {
         isPublished: true
     }
@@ -61,18 +64,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
         },
         { $unwind: "$owner" },
         { $sort: sortStage },
-        { $skip: (page - 1) * limit },
-        { $limit: parseInt(limit) }
+        { $skip: (pageNum - 1) * pageNum },
+        { $limit: limitNum }
     ])
 
     return res
         .status(200)
         .json(new ApiResponse(200, videos, "Videos fetched successfully"))
-
-
-
-
-
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -105,7 +103,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     }
 
     const videoUrl=video.url;
-    const videoDuration=video.duration;
+    const duration=video.duration;
     const owner=req.user?._id;
     const thumbnailUrl=thumbnail.url;
     
@@ -118,7 +116,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         thumbnail:thumbnailUrl,       
         title,
         description,
-        videoDuration,
+        duration,
         isPublished,
         owner}
     )
@@ -155,6 +153,14 @@ const updateVideo = asyncHandler(async (req, res) => {
     if(!videoId){
         throw new ApiError(400,"VideoID not found")
     }
+
+    const existingVideo = await Video.findById(videoId);
+      if (!existingVideo) {
+        throw new ApiError(404, "Video not found");
+      }
+      if (existingVideo.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to update this video");
+      }
 
     const { title, description,isPublished=true} = req.body
 
@@ -211,6 +217,10 @@ const deleteVideo = asyncHandler(async (req, res) => {
     if(!videoId){
         throw new ApiError(401,"Video ID not found")
     }
+    const video = await Video.findById(videoId);
+    if (video.owner.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "You are not authorized to delete this video");
+  }
 
     const deleteVideo=await Video.findByIdAndDelete(videoId)
 

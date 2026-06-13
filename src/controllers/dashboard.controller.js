@@ -12,10 +12,11 @@ const getChannelStats = asyncHandler(async (req, res) => {
  // TODO: Get the channel stats like total video views, total subscribers, total videos, total likes etc.
     
     const totalVideos = await Video.countDocuments({ owner: userId });
+    const userObjectId = new mongoose.Types.ObjectId(userId);
 
    
     const totalViewsData = await Video.aggregate([
-        { $match: { owner: userId } },
+        { $match: { owner: userObjectId } },
         { $group: { _id: null, totalViews: { $sum: "$views" } } }
     ]);
     const totalViews = totalViewsData[0]?.totalViews || 0;
@@ -34,7 +35,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
         }
     },
     { $unwind: "$videoData" },
-    { $match: { "videoData.owner": userId } },
+    { $match: { "videoData.owner": userObjectId } },
     { $count: "totalLikes" }
 ]);
     const totalLikes = totalLikesData[0]?.totalLikes || 0;
@@ -54,11 +55,12 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     if (!channelId) {
         throw new ApiError(401, "Unauthorized - Channel not found");
     }
+    const channelObjectId = new mongoose.Types.ObjectId(channelId);
 
     const videos = await Video.aggregate([
         {
             $match: {
-                owner: channelId
+                owner: channelObjectId
             }
         },
         {
