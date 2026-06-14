@@ -1,6 +1,7 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
 import {User} from "../models/user.model.js"
+import {Like} from "../models/like.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
@@ -64,7 +65,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         },
         { $unwind: "$owner" },
         { $sort: sortStage },
-        { $skip: (pageNum - 1) * pageNum },
+        { $skip: (pageNum - 1) * limitNum },
         { $limit: limitNum }
     ])
 
@@ -135,14 +136,37 @@ const getVideoById = asyncHandler(async (req, res) => {
     if(!videoId){
         throw new ApiError(400,"Video ID required")
     }
-    const videoUrl=await Video.findById(videoId)
-    if(!videoUrl){
-        throw new ApiError(401,"Video does not exist")
+    const video = await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $inc: { views: 1 }
+        },
+        { new: true }
+    ).populate("owner", "username fullName avatar email");
+
+    if(!video){
+        throw new ApiError(404, "Video does not exist")
     }
+
+    const likesCount = await Like.countDocuments({ video: videoId });
+    const isLiked = req.user?._id ? (await Like.exists({ video: videoId, likedBy: req.user._id })) !== null : false;
+
+    if (req.user?._id) {
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $addToSet: { watchHistory: videoId }
+            }
+        );
+    }
+
+    const videoData = video.toObject();
+    videoData.likesCount = likesCount;
+    videoData.isLiked = isLiked;
 
     return res
     .status(200)
-    .json(new ApiResponse(200,videoUrl,"Video fetched successfully"))
+    .json(new ApiResponse(200, videoData, "Video fetched successfully"))
 
 })
 

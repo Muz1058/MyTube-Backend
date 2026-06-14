@@ -150,7 +150,13 @@ const getLikedVideos = asyncHandler(async (req, res) => {
         likedBy:userId,
         video:{$ne:null}
     })
-    .populate("video") 
+    .populate({
+        path: "video",
+        populate: {
+            path: "owner",
+            select: "username fullName avatar email"
+        }
+    }) 
     .sort({ createdAt: -1 });
 
     if(!likedVideos){

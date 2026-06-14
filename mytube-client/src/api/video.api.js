@@ -15,10 +15,11 @@ export const getAllVideos = ({
     })
   );
 
-export const uploadVideo = (formData) =>
+export const uploadVideo = (formData, config = {}) =>
   apiRequest(() =>
     axiosInstance.post('/api/v1/videos', formData, {
       headers: multipartHeaders,
+      ...config,
     })
   );
 

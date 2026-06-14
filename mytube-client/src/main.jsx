@@ -17,6 +17,7 @@ import HistoryPage from './pages/HistoryPage.jsx';
 import LikedVideosPage from './pages/LikedVideosPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import UploadPage from './pages/UploadPage.jsx';
+import SettingsPage from './pages/SettingsPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 
@@ -51,6 +52,7 @@ const router = createBrowserRouter([
               { path: 'liked-videos', element: <LikedVideosPage /> },
               { path: 'dashboard', element: <DashboardPage /> },
               { path: 'upload', element: <UploadPage /> },
+              { path: 'settings', element: <SettingsPage /> },
             ],
           },
         ],
