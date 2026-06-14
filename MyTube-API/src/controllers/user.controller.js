@@ -224,7 +224,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
   try {
     const incomingRefreshToken =
-      req.cookies.refreshToken || req.body.refreshToken;
+      req.cookies?.refreshToken || req.body.refreshToken;
     if (!incomingRefreshToken) {
       throw new ApiError(401, "unauthorized request");
     }
@@ -366,7 +366,6 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   }
 
   const userBeforeUpdate = await User.findById(req.user?._id);
-  console.log(userBeforeUpdate);
 
   const oldCoverImageUrl = userBeforeUpdate.coverImage;
 
@@ -396,7 +395,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   if (!username?.trim()) {
     throw new ApiError(400, "username is missing");
   }
-console.log("Requested username:", username);
+  //console.log("Requested username:", username);
 
   const channel = await User.aggregate([
     {
@@ -406,7 +405,7 @@ console.log("Requested username:", username);
     },
     {
       $lookup: {
-        from: "subscription",
+        from: "subscriptions",
         localField: "_id",
         foreignField: "channel",
         as: "subscribers",
@@ -414,7 +413,7 @@ console.log("Requested username:", username);
     },
     {
       $lookup: {
-        from: "subscription",
+        from: "subscriptions",
         localField: "_id",
         foreignField: "subscriber",
         as: "subscribedTo",
@@ -478,7 +477,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         pipeline: [
           {
             $lookup: {
-              from: "user",
+              from: "users",
               localField: "owner",
               foreignField: "_id",
               as: "owner",
