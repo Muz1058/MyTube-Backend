@@ -40,7 +40,6 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     if (!channelId) {
         throw new ApiError(401, "Unauthorized - Channel not found");
     }
-<<<<<<< HEAD
     const channelObjectId = new mongoose.Types.ObjectId(channelId);
     
 
@@ -77,13 +76,13 @@ const getChannelVideos = asyncHandler(async (req, res) => {
         },
         { $sort: { createdAt: -1 } } 
     ]);
-=======
+
 
     const videos = await Video.find({ owner: channelId })
         .populate("owner", "username avatar email")
         .select("title description views createdAt thumbnail isPublished duration owner")
         .sort({ createdAt: -1 });
->>>>>>> origin/main
+
 
     return res
         .status(200)
