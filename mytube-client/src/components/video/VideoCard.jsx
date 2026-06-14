@@ -1,5 +1,4 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Avatar from '../ui/Avatar';
 import { formatViews, formatDuration, formatRelativeTime } from '../../utils/helpers';
 
