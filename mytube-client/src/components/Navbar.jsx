@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Menu, Search, Video, LogIn, Settings, LogOut, LayoutDashboard, User as UserIcon } from 'lucide-react';
+import { Menu, Search, Upload, LogIn, Settings, LogOut, LayoutDashboard, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { toggleSidebar } from '../store/slices/uiSlice';
 import Avatar from './ui/Avatar';
@@ -105,7 +105,7 @@ export const Navbar = () => {
               className="rounded-full p-2 text-text-primary hover:bg-bg-hover transition-colors hidden sm:flex"
               title="Upload Video"
             >
-              <Video size={20} />
+              <Upload size={20} />
             </Link>
 
             {/* User Dropdown */}

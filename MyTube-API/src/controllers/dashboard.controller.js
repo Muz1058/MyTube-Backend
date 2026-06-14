@@ -56,6 +56,9 @@ const getChannelVideos = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Unauthorized - Channel not found");
     }
     const channelObjectId = new mongoose.Types.ObjectId(channelId);
+    
+
+
 
     const videos = await Video.aggregate([
         {
@@ -82,6 +85,7 @@ const getChannelVideos = asyncHandler(async (req, res) => {
                 views: 1,
                 createdAt: 1,
                 thumbnail: 1,
+                isPublished: 1,
                 owner: "$ownerDetails"
             }
         },

@@ -6,8 +6,15 @@ const app = express()
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
-    credentials: true
-}))
+     credentials: true
+ }))
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        '*'
+    ]
+}));
 
 app.get('/api/v1', (req, res) => {
   res.json({ message: 'Backend working!' });
