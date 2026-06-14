@@ -262,34 +262,42 @@ const deleteVideo = asyncHandler(async (req, res) => {
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
+    const { videoId } = req.params;
 
-    if(!videoId){
-        throw new ApiError(401,"Video ID not found")
+    if (!videoId) {
+        throw new ApiError(400, "Video ID not found");
     }
 
-    const togglePublishStatus=await Video.findByIdAndUpdate(
+    
+    const video = await Video.findById(videoId);
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+    if (video.owner.toString() !== req.user?._id.toString()) {
+        throw new ApiError(403, "You are not authorized to update this video");
+    }
+
+    
+    const updatedVideo = await Video.findByIdAndUpdate(
         videoId,
-         [
-            { 
-               $set: { 
-                isPublished: { $not: "$isPublished" } 
-                } 
+        [
+            {
+                $set: {
+                    isPublished: { $not: "$isPublished" }
+                }
             }
         ],
-        {
-            new:true
-        }
-    )
-    if(!togglePublishStatus){
-        throw new ApiError(500,"Something went wrong while toogle publish status")
+        { new: true }
+    );
+
+    if (!updatedVideo) {
+        throw new ApiError(500, "Something went wrong while toggling publish status");
     }
+
     return res
-    .status(200)
-    .json(new ApiResponse(200,togglePublishStatus,"Toggele status updated"))
-
-})
-
+        .status(200)
+        .json(new ApiResponse(200, updatedVideo, "Publish status toggled successfully"));
+});
 export {
     getAllVideos,
     publishAVideo,

@@ -52,7 +52,6 @@ const addComment = asyncHandler(async (req, res) => {
     }
 
     const myContent=req.body.content
-    console.log("Content ::",myContent)
     
 
     if(!myContent|| myContent.trim() === ""){

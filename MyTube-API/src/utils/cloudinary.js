@@ -1,31 +1,44 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import { ApiError } from "./ApiError.js";
+import path from "path";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View API Keys' above to copy your API secret
 });
+const safeUnlink = (filePath) => {
+  try {
+    const normalized = path.resolve(filePath);
+    if (normalized && fs.existsSync(normalized)) {
+      fs.unlinkSync(normalized);
+    }
+  } catch (err) {
+    console.warn("Could not delete temp file:", filePath, err.message);
+  }
+};
 
 const uploadOnCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
 
-    // upload file on cloudinary
-    const response = await cloudinary.uploader.upload(localFilePath, {
+    const normalizedPath = path.resolve(localFilePath);
+
+    const response = await cloudinary.uploader.upload(normalizedPath, {
       resource_type: "auto",
     });
 
-    // file uploded succefully
-
-    await fs.unlinkSync(localFilePath);
+    safeUnlink(normalizedPath);
 
     return response;
   } catch (error) {
-    await fs.unlinkSync(localFilePath); // remove the lacally save temp file as the upload operation get failed
+    safeUnlink(localFilePath);
+    console.error("Cloudinary upload failed:", error.message);
+    return null;
   }
 };
+
 const deleteSingleAssetfromCloudinary = async (
   publicId,
   resourceType = "image"
@@ -35,20 +48,15 @@ const deleteSingleAssetfromCloudinary = async (
   }
 
   try {
-    const response = await cloudinary.uploader.destroy(
-      publicId,
-      {
-        resource_type: resourceType,
-      },
-      function (error, result) {
-        console.log(result, error);
-      }
-    );
+    const response = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType,
+    });
 
     return response;
   } catch (error) {
     throw new ApiError(500, "Cloudinary deletion failed: " + error.message);
   }
 };
+
 
 export { uploadOnCloudinary, deleteSingleAssetfromCloudinary };

@@ -366,7 +366,6 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   }
 
   const userBeforeUpdate = await User.findById(req.user?._id);
-  console.log(userBeforeUpdate);
 
   const oldCoverImageUrl = userBeforeUpdate.coverImage;
 
@@ -396,7 +395,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   if (!username?.trim()) {
     throw new ApiError(400, "username is missing");
   }
-console.log("Requested username:", username);
+  //console.log("Requested username:", username);
 
   const channel = await User.aggregate([
     {
