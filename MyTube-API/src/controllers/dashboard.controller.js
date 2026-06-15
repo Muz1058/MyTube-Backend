@@ -77,13 +77,6 @@ const getChannelVideos = asyncHandler(async (req, res) => {
         { $sort: { createdAt: -1 } } 
     ]);
 
-
-    const videos = await Video.find({ owner: channelId })
-        .populate("owner", "username avatar email")
-        .select("title description views createdAt thumbnail isPublished duration owner")
-        .sort({ createdAt: -1 });
-
-
     return res
         .status(200)
         .json(new ApiResponse(200, videos, "Videos fetched successfully"));
