@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Home, ThumbsUp, Clock, User as UserIcon, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { getSubscribedChannels } from '../api/subscription.api';
+import { setSidebarOpen } from '../store/slices/uiSlice';
 import Avatar from './ui/Avatar';
 import Spinner from './ui/Spinner';
 
 export const Sidebar = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
   const { user, isAuthenticated } = useAuth();
   const { sidebarOpen } = useSelector((state) => state.ui);
+  const [isMobile, setIsMobile] = useState(false);
 
   const [subscriptions, setSubscriptions] = useState([]);
   const [loadingSubs, setLoadingSubs] = useState(false);
@@ -34,6 +37,25 @@ export const Sidebar = () => {
     }
   }, [isAuthenticated, user?._id]);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+
+    const handleMediaChange = (event) => {
+      setIsMobile(event.matches);
+    };
+
+    handleMediaChange(mediaQuery);
+    mediaQuery.addEventListener('change', handleMediaChange);
+
+    return () => mediaQuery.removeEventListener('change', handleMediaChange);
+  }, []);
+
+  const closeSidebarOnMobile = () => {
+    if (isMobile) {
+      dispatch(setSidebarOpen(false));
+    }
+  };
+
   const navLinks = [
     { to: '/', label: 'Home', icon: Home },
     { to: '/liked-videos', label: 'Liked Videos', icon: ThumbsUp },
@@ -52,8 +74,10 @@ export const Sidebar = () => {
 
   return (
     <aside
-      className={`fixed top-14 bottom-0 left-0 z-30 flex flex-col border-r border-border bg-bg-secondary transition-all duration-200 select-none ${
-        sidebarOpen ? 'w-64' : 'w-20'
+      className={`fixed top-14 bottom-0 left-0 z-30 flex flex-col border-r border-border bg-bg-secondary shadow-2xl transition-transform duration-200 ease-out select-none ${
+        sidebarOpen
+          ? 'w-72 translate-x-0 md:w-64 md:translate-x-0'
+          : 'w-72 -translate-x-full md:w-20 md:translate-x-0'
       }`}
     >
       {/* Scrollable Navigation Area */}
@@ -69,6 +93,7 @@ export const Sidebar = () => {
                 <NavLink
                   key={to}
                   to={to}
+                  onClick={closeSidebarOnMobile}
                   className={`flex items-center gap-4 rounded-lg px-4 py-2.5 text-sm transition-colors ${
                     isActive
                       ? 'bg-accent/10 text-accent font-semibold'
@@ -85,6 +110,7 @@ export const Sidebar = () => {
                 <NavLink
                   key={to}
                   to={to}
+                  onClick={closeSidebarOnMobile}
                   className={`flex flex-col items-center justify-center rounded-lg py-2.5 text-center transition-all ${
                     isActive
                       ? 'bg-accent/10 text-accent font-bold'
@@ -118,6 +144,7 @@ export const Sidebar = () => {
                   <NavLink
                     key={subChannel._id}
                     to={`/channel/${subChannel.username}`}
+                    onClick={closeSidebarOnMobile}
                     className={({ isActive }) =>
                       `flex items-center gap-3 rounded-lg px-4 py-2 text-sm transition-colors ${
                         isActive
@@ -151,6 +178,7 @@ export const Sidebar = () => {
                 <NavLink
                   key={subChannel._id}
                   to={`/channel/${subChannel.username}`}
+                  onClick={closeSidebarOnMobile}
                   className="transition-transform hover:scale-105 active:scale-95"
                   title={subChannel.fullName || subChannel.username}
                 >
