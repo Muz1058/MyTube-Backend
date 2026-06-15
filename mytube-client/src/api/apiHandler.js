@@ -1,12 +1,14 @@
 import toast from 'react-hot-toast';
 
-export const apiRequest = async (requestFn) => {
+export const apiRequest = async (requestFn, { silent = false } = {}) => {
   try {
     const response = await requestFn();
     return response.data.data;
   } catch (error) {
-    const message = error.response?.data?.message ?? 'Something went wrong';
-    toast.error(message);
+    if (!silent) {
+      const message = error.response?.data?.message ?? 'Something went wrong';
+      toast.error(message);
+    }
     throw error;
   }
 };

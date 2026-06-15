@@ -1,7 +1,8 @@
 import axios from 'axios';
 
+// Same-origin /api requests are proxied to the backend (Vite dev server + Vercel rewrites).
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: '',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

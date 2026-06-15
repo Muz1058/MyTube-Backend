@@ -21,7 +21,7 @@ export const refreshToken = () =>
   apiRequest(() => axiosInstance.post('/api/v1/users/refresh-token'));
 
 export const getCurrentUser = () =>
-  apiRequest(() => axiosInstance.get('/api/v1/users/current-user'));
+  apiRequest(() => axiosInstance.get('/api/v1/users/current-user'), { silent: true });
 
 export const updateAccountDetails = ({ fullName, email }) =>
   apiRequest(() =>
