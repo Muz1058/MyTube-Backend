@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
-import { User, Mail, Lock, Upload, Camera, FileText } from 'lucide-react';
+import { User, Mail, Lock, Upload, Camera, FileText, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { loginUserThunk } from '../store/slices/authSlice';
 
@@ -32,6 +32,7 @@ const RegisterPage = () => {
   const [coverImageFile, setCoverImageFile] = useState(null);
   const [coverImagePreview, setCoverImagePreview] = useState('');
   const [coverImageError, setCoverImageError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const [uploadProgress, setUploadProgress] = useState(null);
 
@@ -304,13 +305,21 @@ const RegisterPage = () => {
             </span>
             <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="Min. 8 characters"
               {...register('password')}
-              className={`w-full rounded-lg border bg-bg-tertiary py-2.5 pl-10 pr-3 text-sm text-text-primary placeholder-text-muted outline-none transition-all focus:border-accent ${
+              className={`w-full rounded-lg border bg-bg-tertiary py-2.5 pl-10 pr-12 text-sm text-text-primary placeholder-text-muted outline-none transition-all focus:border-accent ${
                 errors.password ? 'border-red-500 focus:border-red-500' : 'border-border'
               }`}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-0 flex items-center justify-center pr-3 text-text-muted hover:text-text-primary transition-colors"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
           {errors.password && (
             <p className="text-xs font-medium text-red-500 mt-1">{errors.password.message}</p>

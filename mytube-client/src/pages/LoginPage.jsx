@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
-import { Mail, User, Lock, LogIn, Sparkles } from 'lucide-react';
+import { Mail, User, Lock, LogIn, Sparkles, Eye, EyeOff } from 'lucide-react';
 import { loginUserThunk } from '../store/slices/authSlice';
 
 // Zod validation schemas
@@ -26,6 +26,7 @@ const LoginPage = () => {
   
   const { isLoading } = useSelector((state) => state.auth);
   const [loginType, setLoginType] = useState('email'); // 'email' | 'username'
+  const [showPassword, setShowPassword] = useState(false);
 
   const activeSchema = loginType === 'email' ? emailSchema : usernameSchema;
 
@@ -174,13 +175,21 @@ const LoginPage = () => {
             </span>
             <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               {...register('password')}
-              className={`w-full rounded-lg border bg-bg-tertiary py-2.5 pl-10 pr-3 text-sm text-text-primary placeholder-text-muted outline-none transition-all focus:border-accent ${
+              className={`w-full rounded-lg border bg-bg-tertiary py-2.5 pl-10 pr-12 text-sm text-text-primary placeholder-text-muted outline-none transition-all focus:border-accent ${
                 errors.password ? 'border-red-500 focus:border-red-500' : 'border-border'
               }`}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-0 flex items-center justify-center pr-3 text-text-muted hover:text-text-primary transition-colors"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
           {errors.password && (
             <p className="text-xs font-medium text-red-500 mt-1">{errors.password.message}</p>
